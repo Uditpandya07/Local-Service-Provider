@@ -57,5 +57,3 @@ Local-Service-Provider
 ## Development Status
 
 Project currently in the initial setup phase.
-
-The system will be built step by step while learning Java concepts from basic to advanced.
