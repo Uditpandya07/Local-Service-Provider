@@ -1,6 +1,8 @@
 package com.servicefinder.service;
 
 import com.servicefinder.model.Booking;
+import com.servicefinder.util.InvalidBookingException;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,6 +12,14 @@ public class BookingService implements BookingOperations {
 
     @Override
     public void createBooking(Booking booking) {
+        if (booking == null) {
+            try {
+                throw new InvalidBookingException("Booking cannot be null");
+            } catch (InvalidBookingException e) {
+                System.out.println(e.getMessage());
+                return;
+            }
+        }
         bookings.add(booking);
         System.out.println("Booking created successfully.");
     }
