@@ -2,14 +2,16 @@ package com.servicefinder.service;
 
 import com.servicefinder.model.Booking;
 import com.servicefinder.util.InvalidBookingException;
+import com.servicefinder.database.BookingDAO;
+import com.servicefinder.service.NotificationThread;
 
 import java.util.ArrayList;
 import java.util.List;
-import com.servicefinder.service.NotificationThread;
 
 public class BookingService implements BookingOperations {
 
-    private List<Booking> bookings = new ArrayList<>();
+    private static List<Booking> bookings = new ArrayList<>();
+    private BookingDAO bookingDAO = new BookingDAO();
 
     @Override
     public void createBooking(Booking booking) {
@@ -21,10 +23,14 @@ public class BookingService implements BookingOperations {
                 return;
             }
         }
+
         bookings.add(booking);
-        System.out.println("Booking created successfully.");
+        bookingDAO.insertBooking(booking);
+
         NotificationThread nt = new NotificationThread("New booking created!");
         nt.start();
+
+        System.out.println("Booking created successfully.");
     }
 
     @Override
@@ -57,7 +63,8 @@ public class BookingService implements BookingOperations {
             System.out.println("-------------------");
         }
     }
+
     public List<Booking> getBookings() {
-    return bookings;
+        return bookings;
     }
 }
