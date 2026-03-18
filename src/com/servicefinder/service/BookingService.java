@@ -54,4 +54,7 @@ public class BookingService implements BookingOperations {
             System.out.println("-------------------");
         }
     }
+    public List<Booking> getBookings() {
+    return bookings;
+    }
 }
