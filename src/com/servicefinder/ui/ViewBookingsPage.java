@@ -2,45 +2,65 @@ package com.servicefinder.ui;
 
 import com.servicefinder.model.Booking;
 import com.servicefinder.service.BookingService;
-
+import java.awt.*;
+import java.util.List;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
-import java.util.List;
 
 public class ViewBookingsPage {
 
-    BookingService bookingService = new BookingService();
+    private BookingService bookingService = new BookingService();
 
-    public ViewBookingsPage() {
+    public ViewBookingsPage(JFrame parent) {
 
-        JFrame frame = new JFrame("View Bookings");
+        JDialog dialog = new JDialog(parent, "View Bookings", true);
+        dialog.setSize(560, 350);
+        dialog.setLocationRelativeTo(parent);
 
-        String[] columnNames = {"Booking ID", "Customer ID", "Provider ID", "Service", "Status"};
+        JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
 
-        DefaultTableModel model = new DefaultTableModel(columnNames, 0);
+        JLabel title = new JLabel("All Bookings", SwingConstants.CENTER);
+        title.setFont(new Font("Arial", Font.BOLD, 15));
+        mainPanel.add(title, BorderLayout.NORTH);
+
+        String[] columns = {"Booking ID", "Customer ID", "Provider ID", "Service", "Status"};
+        DefaultTableModel model = new DefaultTableModel(columns, 0) {
+            public boolean isCellEditable(int row, int col) {
+                return false;
+            }
+        };
 
         JTable table = new JTable(model);
+        table.setRowHeight(25);
+        table.getTableHeader().setReorderingAllowed(false);
 
         JScrollPane scrollPane = new JScrollPane(table);
-        scrollPane.setBounds(20, 20, 500, 200);
+        mainPanel.add(scrollPane, BorderLayout.CENTER);
 
-        frame.add(scrollPane);
+        JButton closeButton = new JButton("Close");
+        mainPanel.add(closeButton, BorderLayout.SOUTH);
 
         List<Booking> bookings = bookingService.getBookings();
 
-        for (Booking b : bookings) {
-            Object[] row = {
-                    b.getBookingId(),
-                    b.getCustomerId(),
-                    b.getProviderId(),
-                    b.getServiceType(),
-                    b.getStatus()
-            };
-            model.addRow(row);
+        if (bookings.isEmpty()) {
+            JOptionPane.showMessageDialog(dialog, "No bookings found.");
+        } else {
+            for (Booking b : bookings) {
+                model.addRow(new Object[]{
+                        b.getBookingId(),
+                        b.getCustomerId(),
+                        b.getProviderId(),
+                        b.getServiceType(),
+                        b.getStatus()
+                });
+            }
         }
 
-        frame.setSize(550, 300);
-        frame.setLayout(null);
-        frame.setVisible(true);
+        dialog.add(mainPanel);
+
+        closeButton.addActionListener(e -> dialog.dispose());
+
+        dialog.setVisible(true);
     }
 }

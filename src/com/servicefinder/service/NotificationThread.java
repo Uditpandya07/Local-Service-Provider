@@ -14,7 +14,7 @@ public class NotificationThread extends Thread {
         try {
             Thread.sleep(1000);
         } catch (InterruptedException e) {
-            System.out.println("Thread interrupted.");
+            System.out.println("Notification interrupted.");
         }
     }
 }

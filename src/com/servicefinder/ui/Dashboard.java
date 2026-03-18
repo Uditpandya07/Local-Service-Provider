@@ -1,31 +1,48 @@
 package com.servicefinder.ui;
 
 import javax.swing.*;
+import java.awt.*;
 
 public class Dashboard {
 
     public Dashboard() {
 
-        JFrame frame = new JFrame("Dashboard");
+        JFrame frame = new JFrame("Service Finder - Dashboard");
+        frame.setSize(400, 300);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setLocationRelativeTo(null);
 
-        JLabel title = new JLabel("Welcome to Service Finder");
-        title.setBounds(80, 20, 250, 30);
+        JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(20, 40, 20, 40));
 
-        JButton bookService = new JButton("Book Service");
-        bookService.setBounds(100, 80, 150, 30);
+        JLabel title = new JLabel("Welcome to Service Finder", SwingConstants.CENTER);
+        title.setFont(new Font("Arial", Font.BOLD, 16));
+        mainPanel.add(title, BorderLayout.NORTH);
 
+        JPanel buttonPanel = new JPanel(new GridLayout(3, 1, 10, 10));
+
+        JButton bookService = new JButton("Book a Service");
         JButton viewBookings = new JButton("View Bookings");
-        viewBookings.setBounds(100, 130, 150, 30);
+        JButton logout = new JButton("Logout");
 
-        frame.add(title);
-        frame.add(bookService);
-        frame.add(viewBookings);
+        buttonPanel.add(bookService);
+        buttonPanel.add(viewBookings);
+        buttonPanel.add(logout);
 
-        frame.setSize(350, 300);
-        frame.setLayout(null);
+        mainPanel.add(buttonPanel, BorderLayout.CENTER);
+        frame.add(mainPanel);
         frame.setVisible(true);
 
-        bookService.addActionListener(e -> new BookingPage());
-        viewBookings.addActionListener(e -> new ViewBookingsPage());
+        bookService.addActionListener(e -> new BookingPage(frame));
+        viewBookings.addActionListener(e -> new ViewBookingsPage(frame));
+
+        logout.addActionListener(e -> {
+            int confirm = JOptionPane.showConfirmDialog(frame,
+                    "Are you sure you want to logout?", "Logout", JOptionPane.YES_NO_OPTION);
+            if (confirm == JOptionPane.YES_OPTION) {
+                frame.dispose();
+                new LoginPage();
+            }
+        });
     }
 }

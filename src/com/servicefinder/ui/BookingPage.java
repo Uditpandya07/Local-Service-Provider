@@ -2,68 +2,100 @@ package com.servicefinder.ui;
 
 import com.servicefinder.model.Booking;
 import com.servicefinder.service.BookingService;
-
+import com.servicefinder.util.InvalidBookingException;
+import java.awt.*;
 import javax.swing.*;
 
 public class BookingPage {
 
-    BookingService bookingService = new BookingService();
+    private BookingService bookingService = new BookingService();
 
-    public BookingPage() {
+    public BookingPage(JFrame parent) {
 
-        JFrame frame = new JFrame("Book Service");
+        JDialog dialog = new JDialog(parent, "Book a Service", true);
+        dialog.setSize(350, 250);
+        dialog.setLocationRelativeTo(parent);
 
-        JLabel title = new JLabel("Book a Service");
-        title.setBounds(120, 10, 150, 30);
+        JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(20, 30, 20, 30));
+
+        JLabel title = new JLabel("Book a Service", SwingConstants.CENTER);
+        title.setFont(new Font("Arial", Font.BOLD, 15));
+        mainPanel.add(title, BorderLayout.NORTH);
+
+        JPanel formPanel = new JPanel(new GridLayout(2, 2, 10, 10));
 
         JLabel customerLabel = new JLabel("Customer ID:");
-        customerLabel.setBounds(50, 50, 100, 30);
-
         JTextField customerField = new JTextField();
-        customerField.setBounds(150, 50, 150, 30);
 
         JLabel serviceLabel = new JLabel("Service:");
-        serviceLabel.setBounds(50, 100, 100, 30);
-
         String[] services = {"Electrician", "Plumber", "Mechanic"};
         JComboBox<String> serviceBox = new JComboBox<>(services);
-        serviceBox.setBounds(150, 100, 150, 30);
 
-        JButton bookButton = new JButton("Book Service");
-        bookButton.setBounds(100, 150, 150, 30);
+        formPanel.add(customerLabel);
+        formPanel.add(customerField);
+        formPanel.add(serviceLabel);
+        formPanel.add(serviceBox);
 
-        frame.add(title);
-        frame.add(customerLabel);
-        frame.add(customerField);
-        frame.add(serviceLabel);
-        frame.add(serviceBox);
-        frame.add(bookButton);
+        mainPanel.add(formPanel, BorderLayout.CENTER);
 
-        frame.setSize(350, 250);
-        frame.setLayout(null);
-        frame.setVisible(true);
+        JButton bookButton = new JButton("Confirm Booking");
+        mainPanel.add(bookButton, BorderLayout.SOUTH);
+
+        dialog.add(mainPanel);
 
         bookButton.addActionListener(e -> {
+            String customerText = customerField.getText().trim();
+
+            if (customerText.isEmpty()) {
+                JOptionPane.showMessageDialog(dialog, "Please enter a customer ID.");
+                return;
+            }
 
             try {
-                int customerId = Integer.parseInt(customerField.getText());
+                int customerId = Integer.parseInt(customerText);
                 String service = (String) serviceBox.getSelectedItem();
 
+                bookButton.setEnabled(false);
+                bookButton.setText("Booking...");
+
                 Booking booking = new Booking(
-                        (int)(Math.random() * 1000),
+                        (int) (Math.random() * 1000),
                         customerId,
                         201,
                         service,
                         "Requested"
                 );
 
-                bookingService.createBooking(booking);
+                Thread bookingThread = new Thread(() -> {
+                    try {
+                        bookingService.createBooking(booking);
+                        SwingUtilities.invokeLater(() -> {
+                            JOptionPane.showMessageDialog(dialog, "Booking successful!");
+                            dialog.dispose();
+                        });
+                    } catch (InvalidBookingException ex) {
+                        SwingUtilities.invokeLater(() -> {
+                            JOptionPane.showMessageDialog(dialog, ex.getMessage());
+                            bookButton.setEnabled(true);
+                            bookButton.setText("Confirm Booking");
+                        });
+                    } catch (Exception ex) {
+                        SwingUtilities.invokeLater(() -> {
+                            JOptionPane.showMessageDialog(dialog, "Error: " + ex.getMessage());
+                            bookButton.setEnabled(true);
+                            bookButton.setText("Confirm Booking");
+                        });
+                    }
+                });
 
-                JOptionPane.showMessageDialog(frame, "Booking Successful!");
+                bookingThread.start();
 
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(frame, "Invalid Input!");
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(dialog, "Customer ID must be a number.");
             }
         });
+
+        dialog.setVisible(true);
     }
 }

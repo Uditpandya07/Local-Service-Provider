@@ -3,7 +3,6 @@ package com.servicefinder.service;
 import com.servicefinder.model.Booking;
 import com.servicefinder.util.InvalidBookingException;
 import com.servicefinder.database.BookingDAO;
-import com.servicefinder.service.NotificationThread;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,27 +13,33 @@ public class BookingService implements BookingOperations {
     private BookingDAO bookingDAO = new BookingDAO();
 
     @Override
-    public void createBooking(Booking booking) {
+    public void createBooking(Booking booking) throws InvalidBookingException {
+
         if (booking == null) {
-            try {
-                throw new InvalidBookingException("Booking cannot be null");
-            } catch (InvalidBookingException e) {
-                System.out.println(e.getMessage());
-                return;
-            }
+            throw new InvalidBookingException("Booking cannot be null.");
+        }
+
+        if (booking.getCustomerId() <= 0) {
+            throw new InvalidBookingException("Invalid customer ID.");
         }
 
         bookings.add(booking);
         bookingDAO.insertBooking(booking);
 
-        NotificationThread nt = new NotificationThread("New booking created!");
+        NotificationThread nt = new NotificationThread("New booking created for: "
+                + booking.getServiceType());
         nt.start();
 
         System.out.println("Booking created successfully.");
     }
 
     @Override
-    public void updateBookingStatus(int bookingId, String status) {
+    public void updateBookingStatus(int bookingId, String status) throws InvalidBookingException {
+
+        if (status == null || status.trim().isEmpty()) {
+            throw new InvalidBookingException("Status cannot be empty.");
+        }
+
         for (Booking b : bookings) {
             if (b.getBookingId() == bookingId) {
                 b.setStatus(status);
@@ -42,11 +47,13 @@ public class BookingService implements BookingOperations {
                 return;
             }
         }
-        System.out.println("Booking not found.");
+
+        throw new InvalidBookingException("Booking ID " + bookingId + " not found.");
     }
 
     @Override
-    public void cancelBooking(int bookingId) {
+    public void cancelBooking(int bookingId) throws InvalidBookingException {
+
         for (Booking b : bookings) {
             if (b.getBookingId() == bookingId) {
                 b.setStatus("Cancelled");
@@ -54,17 +61,23 @@ public class BookingService implements BookingOperations {
                 return;
             }
         }
-        System.out.println("Booking not found.");
-    }
 
-    public void displayAllBookings() {
-        for (Booking b : bookings) {
-            b.displayBooking();
-            System.out.println("-------------------");
-        }
+        throw new InvalidBookingException("Booking ID " + bookingId + " not found.");
     }
 
     public List<Booking> getBookings() {
         return bookings;
+    }
+
+    public void displayAllBookings() {
+        if (bookings.isEmpty()) {
+            System.out.println("No bookings found.");
+            return;
+        }
+
+        for (Booking b : bookings) {
+            b.displayBooking();
+            System.out.println("-------------------");
+        }
     }
 }

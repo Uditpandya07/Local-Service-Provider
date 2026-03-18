@@ -1,61 +1,63 @@
 package com.servicefinder.ui;
 
+import java.awt.*;
 import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 public class LoginPage {
 
     public LoginPage() {
 
         JFrame frame = new JFrame("Local Service Finder - Login");
+        frame.setSize(350, 220);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setLocationRelativeTo(null);
 
-        JLabel title = new JLabel("Login");
-        title.setBounds(140, 10, 100, 30);
+        JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(20, 30, 20, 30));
+
+        JLabel title = new JLabel("Login", SwingConstants.CENTER);
+        title.setFont(new Font("Arial", Font.BOLD, 18));
+        mainPanel.add(title, BorderLayout.NORTH);
+
+        JPanel formPanel = new JPanel(new GridLayout(2, 2, 10, 10));
 
         JLabel userLabel = new JLabel("Username:");
-        userLabel.setBounds(50, 50, 100, 30);
-
         JTextField userField = new JTextField();
-        userField.setBounds(150, 50, 150, 30);
 
         JLabel passLabel = new JLabel("Password:");
-        passLabel.setBounds(50, 100, 100, 30);
-
         JPasswordField passField = new JPasswordField();
-        passField.setBounds(150, 100, 150, 30);
+
+        formPanel.add(userLabel);
+        formPanel.add(userField);
+        formPanel.add(passLabel);
+        formPanel.add(passField);
+
+        mainPanel.add(formPanel, BorderLayout.CENTER);
 
         JButton loginButton = new JButton("Login");
-        loginButton.setBounds(120, 150, 100, 30);
+        mainPanel.add(loginButton, BorderLayout.SOUTH);
 
-        frame.add(title);
-        frame.add(userLabel);
-        frame.add(userField);
-        frame.add(passLabel);
-        frame.add(passField);
-        frame.add(loginButton);
-
-        frame.setSize(350, 250);
-        frame.setLayout(null);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.add(mainPanel);
         frame.setVisible(true);
 
-        loginButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
+        loginButton.addActionListener(e -> {
+            String username = userField.getText().trim();
+            String password = new String(passField.getPassword()).trim();
 
-                String username = userField.getText();
-                String password = new String(passField.getPassword());
+            if (username.isEmpty() || password.isEmpty()) {
+                JOptionPane.showMessageDialog(frame, "Please fill in all fields.");
+                return;
+            }
 
-                if (username.equals("admin") && password.equals("1234")) {
-                    JOptionPane.showMessageDialog(frame, "Login Successful");
-
-                    frame.dispose(); // close login
-                    new Dashboard(); // open dashboard
-
-                } else {
-                    JOptionPane.showMessageDialog(frame, "Invalid Credentials");
-                }
+            if (username.equals("admin") && password.equals("1234")) {
+                frame.dispose();
+                new Dashboard();
+            } else {
+                JOptionPane.showMessageDialog(frame, "Invalid credentials.");
+                passField.setText("");
             }
         });
+
+        passField.addActionListener(e -> loginButton.doClick());
     }
 }
