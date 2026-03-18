@@ -5,6 +5,7 @@ import com.servicefinder.util.InvalidBookingException;
 
 import java.util.ArrayList;
 import java.util.List;
+import com.servicefinder.service.NotificationThread;
 
 public class BookingService implements BookingOperations {
 
@@ -22,6 +23,8 @@ public class BookingService implements BookingOperations {
         }
         bookings.add(booking);
         System.out.println("Booking created successfully.");
+        NotificationThread nt = new NotificationThread("New booking created!");
+        nt.start();
     }
 
     @Override
