@@ -15,11 +15,12 @@ This system aims to create a centralized platform where users can easily discove
 
 ## Key Features
 
-* Search for local service providers
-* View verified electricians, plumbers, mechanics, etc.
-* Send booking requests
-* Track service request status
-* Admin verification of providers
+* User Authentication (Login System)
+* Interactive GUI Dashboard
+* Send and manage booking requests (Electrician, Plumber, Mechanic)
+* View all current bookings in a tabular format
+* Asynchronous notifications using Multithreading
+* Persistent data storage via Database and File Handling
 
 ---
 
@@ -29,15 +30,16 @@ This system aims to create a centralized platform where users can easily discove
 * Object Oriented Programming
 * Swing (GUI)
 * JDBC
-* MySQL
+* Oracle Database
 * Multithreading
 * File Handling
+* Custom Exception Handling
 
 ---
 
 ## Project Structure
 
-```
+```text
 Local-Service-Provider
 │
 ├── src/com/servicefinder
@@ -50,10 +52,3 @@ Local-Service-Provider
 ├── database
 ├── docs
 ├── screenshots
-```
-
----
-
-## Development Status
-
-Project currently in the initial setup phase.
